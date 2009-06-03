@@ -1,63 +1,57 @@
 import feedparser
+import shelve
 import re
-
-## Main URL for NOAA's RSS feed
-NOAARSSURL='''http://www.weather.gov/alerts-beta/us.php?x\x3d0'''
-
-## Build a feed parser for the NOAA RSS feed
-noaaFeed=feedparser.parse(NOAARSSURL)
-
 
 class ThunderStorm(object):
     '''ThunderStorm class used to parse and store relevant information
     for a Severe ThunderStorm Alert'''
-    def __init__(self, feedEntry):
-        ## Feed information
-        self.id=None
-        self.state=None
-        self.sevLevel=None
-        self.urgency=None
-        self.effective=None
-        self.expires=None
-        self.summary=None
-        self.areas=None
-        ## Storm Information
-        self.hail=None
-        self.lightining=None
-        self.winds=None
-        self.rain=None
-        self.location=None
-        self.direction=None
-        ## Twitter Information
-        self.tweet=None
-        self.order=['location','effective','direction','expires','rain','winds','lightining','hail']
-        self.parse(feedEntry)
+    def __init__(self, feedUrl, shelfPath):
+        #self.order=['location','effective','direction','expires','rain',
+        #            'winds','lightining','hail']
+        self.shelf = shelve.open(shelfPath)
+        if "thunderstorm" not in self.shelf:
+            self.shelf["thunderstorm"] = {}
+        self.parse(feedparser.parse(feedUrl))
+
+    def displayEntry(self, entry):
+        id = entry['id'].split('=', 1)[1]
+        state = id[0:2]
+        sevLevel = entry['cap_severity']
+        effective = entry['cap_effective']
+        expires = entry['cap_expires']
+        urgency = entry['cap_urgency']
+        summary = entry['summary']
+
+        print "\nID:            %s" % id
+        print "State:         %s" % state
+        print "Severity:      %s" % sevLevel
+        print "Urgency:       %s" % urgency
+        print "Effective:     %s" % effective
+        print "Expires:       %s" % expires
+        print "Summary:       %s" % summary
+        print "Length of summary: %s\n" % len(summary)
 
     def parse(self, nfeed):
-        ''' Trip through the feed entries and print the thunderstorm warnings '''
+        ''' Itterate over the feed entries and print the thunderstorm
+        warnings '''
+        feedEntries = []
+        ids = []
+
         for e in nfeed['entries']:
         ## Only report the SevereThunderStormWarnings
-            if e['id'].find('SevereThunderstormWarning')>0:
-                ## split the url on the equal sign and grab what comes after it
-                self.id=e['id'].split('=')[1]
-                self.state=id[0:2]
-                self.sevLevel=e['cap_severity']
-                self.effective=e['cap_effective']
-                self.expires=e['cap_expires']
-                self.urgency=e['cap_urgency']
-                self.summary=e['summary']
-                print "========================================"
-                print "ID:            %s" % self.id
-                print "State:         %s" % self.state
-                print "Severity:      %s" % self.sevLevel
-                print "Urgency:       %s" % self.urgency
-                print "Effective:     %s" % self.effective
-                print "Expires:       %s" % self.expires
-                print "Summary:       %s" % self.summary
-                print "========================================"
-                
+            if e['id'].find('SevereThunderstormWarning') > 0:
+                feedEntries.append(e)
+                ids.append(e["id"])
+                self.displayEntry(e)
+
+        for entry in feedEntries:
+            if entry["id"] not in self.shelf["thunderstorm"]:
+                self.shelf["thunderstorm"][entry["id"]] = entry["summary"]
+
+        # Clean up the existing entries
+        for idx in self.shelf["thunderstorm"]:
+            if idx not in ids:
+                del self.shelf["thunderstorm"][idx]
+
     def summarize(self):
         pass
-
-
-
