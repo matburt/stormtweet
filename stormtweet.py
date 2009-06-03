@@ -14,6 +14,8 @@ def main():
     op = optparse.OptionParser()
     op.add_option("-c", "--config", dest="config",
                   help="configuration file")
+    op.add_option("-i", "--initialize", dest="initialize",
+                  help="Initialize database, don't actually post entries")
     (options, args) = op.parse_args()
 
     if options.config is None:
