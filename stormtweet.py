@@ -16,6 +16,8 @@ def main():
                   help="configuration file")
     op.add_option("-i", "--initialize", dest="initialize",
                   help="Initialize database, don't actually post entries")
+    op.add_option("-v", "--verbose", dest="verbose",
+                  help="Display extra information")
     (options, args) = op.parse_args()
 
     if options.config is None:

@@ -8,7 +8,7 @@ class ThunderStorm(object):
     def __init__(self, feedUrl, shelfPath):
         #self.order=['location','effective','direction','expires','rain',
         #            'winds','lightining','hail']
-        self.shelf = shelve.open(shelfPath)
+        self.shelf = shelve.open(shelfPath, writeback=True)
         if "thunderstorm" not in self.shelf:
             self.shelf["thunderstorm"] = {}
         self.parse(feedparser.parse(feedUrl))
@@ -32,26 +32,28 @@ class ThunderStorm(object):
         print "Length of summary: %s\n" % len(summary)
 
     def parse(self, nfeed):
-        ''' Itterate over the feed entries and print the thunderstorm
+        ''' Itterate over the feed entries and store the thunderstorm
         warnings '''
         feedEntries = []
+        self.newEntries = []
         ids = []
 
         for e in nfeed['entries']:
         ## Only report the SevereThunderStormWarnings
             if e['id'].find('SevereThunderstormWarning') > 0:
                 feedEntries.append(e)
-                ids.append(e["id"])
-                self.displayEntry(e)
-
-        for entry in feedEntries:
-            if entry["id"] not in self.shelf["thunderstorm"]:
-                self.shelf["thunderstorm"][entry["id"]] = entry["summary"]
+                newid = e['id'].split('=', 1)[1]
+                ids.append(newid)
+                if newid not in self.shelf["thunderstorm"]:
+                    self.newEntries.append(newid)
+                    self.shelf["thunderstorm"][newid] = e["summary"]
+                    self.displayEntry(e)
 
         # Clean up the existing entries
         for idx in self.shelf["thunderstorm"]:
             if idx not in ids:
                 del self.shelf["thunderstorm"][idx]
+        self.shelf.sync()
 
     def summarize(self):
         pass
