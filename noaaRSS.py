@@ -43,14 +43,20 @@ class ThunderStorm(object):
             if e['id'].find('SevereThunderstormWarning') > 0:
                 feedEntries.append(e)
                 newid = e['id'].split('=', 1)[1]
+                state = newid[0:2]
                 ids.append(newid)
                 if newid not in self.shelf["thunderstorm"]:
                     self.newEntries.append(newid)
-                    self.shelf["thunderstorm"][newid] = e["summary"]
+                    self.shelf["thunderstorm"][newid] = state + ":" + \
+                        e["summary"]
                     self.displayEntry(e)
 
+                    n = NOAA2Message()
+                    n.convert(self.shelf["thunderstorm"][newid])
+
         # Clean up the existing entries
-        for idx in self.shelf["thunderstorm"]:
+        tsIds = self.shelf["thunderstorm"].keys()
+        for idx in tsIds:
             if idx not in ids:
                 del self.shelf["thunderstorm"][idx]
         self.shelf.sync()
