@@ -47,7 +47,9 @@ class Tweets(Entity):
     tState = ManyToOne('TweetStates')
 
 
-
+class DirectMessages(Entity):
+    messageID = Field(Integer)
+    messageTime = Field(DateTime, default = mx.DateTime.now)
 
 
 def createDataBase():
