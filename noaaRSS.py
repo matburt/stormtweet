@@ -51,8 +51,9 @@ class ThunderStorm(object):
                         e["summary"]
                     self.displayEntry(e)
 
-                    n = NOAA2Message()
-                    n.convert(self.shelf["thunderstorm"][newid])
+##                    n = NOAA2Message()
+##                    n.convert(self.shelf["thunderstorm"][newid])
+                    self.shelf["thunderstorm"][newid]
 
         # Clean up the existing entries
         tsIds = self.shelf["thunderstorm"].keys()

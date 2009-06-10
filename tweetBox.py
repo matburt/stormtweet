@@ -6,9 +6,9 @@ from twitter import Twitter
 
 def stormMessage(message, receipients):
     tbox=Twitter('stormwarn','st0rmp22wd')
-##    tbox.direct_messages.new(user='timothy_edwards',message)
+##    tbox.direct_messages.new(user='timothy_edwards',text=message)
     for aUser in receipients:
-        tbox.direct_messages.new(user=aUser,message)
+        tbox.direct_messages.new(user=aUser,text=message)
 
 
 def update(message):
