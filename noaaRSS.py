@@ -65,13 +65,18 @@ class ThunderStorm(object):
         pass
 
     def recordEntry(self, e):
-        stormType=StormType.get_by(value='Thunderstorm')
-        stormState=StormStates.get_by(value='New')
-        uState=UnitedStates.get_by(abbreviation=e['id'][0:2])
-        newStorm=Storm(stormID=e['id'],stormType=stormType,effective=e['cap_effective'],
-                       expires=e['cap_expires'],sevLevel=e['cap_severity'],
-                       urgency=e['cap_urgency'],summary=e['summary'],
-                       uState=uState,sState=sState)
+        stormType=StormType.get_by(value ='Thunderstorm')
+        stormState=StormStates.get_by(value = 'New')
+        uState=UnitedStates.get_by(abbreviation = e['id'][0:2])
+        newStorm=Storm(stormID = e['id'],
+                       stormType = stormType,
+                       effective = e['cap_effective'],
+                       expires = e['cap_expires'],
+                       sevLevel = e['cap_severity'],
+                       urgency = e['cap_urgency'],
+                       summary = e['summary'],
+                       uState = uState,
+                       sState = sState)
         newStorm.update_or_save()
         return newStorm
 
@@ -79,21 +84,15 @@ class ThunderStorm(object):
         # this whole function may need to run as a separate thread
         # instead of inline with the rss parsing
 
-        ## change the state to proccessing until we finish sending the alerts
-        stormState=StormStates.get_by(value='Processing')
+        # change the state to proccessing until we finish sending the alerts
+        stormState=StormStates.get_by(value = 'Processing')
         storm.sState=stormState
         storm.update_or_save()
-        ##find all active users following the uState affected by the storm
+        #find all active users following the uState affected by the storm
 
-        ## for each active user
-        #######send a direct message to each user
+        # for each active user
+        # send a direct message to each user
+        #record the tweet sent to each user
 
-        #######record the tweet sent to each user
-
-        ##after alerting all users, change the stormstate to dispatched so we know we told everyone
-
-        
-
-        
-        
-        
+        #after alerting all users, change the stormstate to dispatched so we
+        #know we told everyone
