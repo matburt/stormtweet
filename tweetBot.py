@@ -23,7 +23,8 @@ UNKNOWN_MSG = """
 I am sorry %s , I can not do that.  Please try follow|silence|stop XX
 """
 FOLLOWING_MSG = """
-Thanks for following StormWarn! To get storm warnings for a state with postal abbreviation XX send me:\nfollow XX to get updates
+Thanks for following StormWarn! To get storm warnings for a state with postal
+ abbreviation XX send me:\nfollow XX to get updates
 """
 # setup the model
 setup_all()
