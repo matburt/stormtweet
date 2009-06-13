@@ -2,7 +2,7 @@ from elixir import *
 import mx.DateTime
 
 ## Set the data base backend (maybe pgsql later?)
-metadata.bind = "sqlite://./stormTweet.sqlite"
+metadata.bind = "postgres://stormtweet:270rm@localhost/stormtweet"
 ## Debug SQL for now
 metadata.bind.echo = True
 

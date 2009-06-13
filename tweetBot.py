@@ -17,39 +17,38 @@ class TweetBot:
         action = message['text'].split()[0].lower()
         state = message['text'].split()[1].upper()
         sender = message['sender_screen_name']
-        try:
-            follower=Follower.get_by(userid=sender).one()
-        except StandardError, error:
-            print error
-            follower=Follower(user=sender)
+        
+        follower=Follower.get_by(userid=sender)
+        if not follower:
+            follower=Follower(userid=sender)
+            session.commit()
 
-        try:
-            ustate = UnitedStates.get_by(value=state)
-        except StandardError, error:
-            print error
+        ustate = UnitedStates.get_by(value=state)
+        if not ustate:
             self.tbox.direct_messages.new(user=sender, text='I am sorry %s , I can not do that.  Please try follow|silence|stop XX' % sender)
 
         if action == 'follow':
             fstate=FollowerStates.get_by(value='Active')
-            follower.fstate=fstate
-            follower.ustate=ustate
+            follower.fState=fstate
+            follower.uState=ustate
             follower.update()
             self.tbox.direct_messages.new(user=sender, text='Congrats! You are now following storms in %s. Silence updates with   silence %s' % (state,state))
         elif action == 'silence':
             fstate=FollowerStates.get_by(value='Slienced')
-            follower.fstate=fstate
-            follower.ustate=ustate
+            follower.fState=fstate
+            follower.uState=ustate
             follower.update()
             self.tbox.direct_messages.new(user=sender, text='SHHHHHH.  You have silenced updates for storms in %s. Enable updates with   follow %s' % (state,state))
         elif action == 'stop':
             fstate=FollowerStates.get_by(value='Inactive')
-            follower.fstate=fstate
-            follower.ustate=ustate
+            follower.fState=fstate
+            follower.uState=ustate
             follower.update()
             self.tbox.direct_messages.new(user=sender, text='FOR SHAME!  You are no longer following storms in %s. Enable updates with   follow %s' % (state,state))
         else:
             self.tbox.direct_messages.new(user=sender, text='I am sorry %s , I can not do that.  Please try follow|silence|stop XX' % sender)
-
+        
+        session.commit()
             
 
     def getMessages(self):
@@ -67,7 +66,7 @@ class TweetBot:
             self.tbox.friendships.create(id=aFriend)
             screen_name=self.tbox.users.show(id=aFriend)['screen_name']
             self.tbox.direct_messages.new(user=screen_name, text='''Thanks for following StormWarn! To get storm warnings for a state with postal abbreviation XX send me:\nfollow XX to get updates''')
-        
+        session.commit()
     def doit(self):
         self.makeFriends()
         self.getMessages()
@@ -76,10 +75,10 @@ class TweetBot:
 
 if __name__=='__main__':
     spam=TweetBot()
-    spam.doit()
-    while time.sleep(1800):
+
+    while 1:
         spam.doit()
         print 'sleeping ....'
-
+        time.sleep(1800)
 
             
