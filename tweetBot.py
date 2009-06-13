@@ -2,14 +2,16 @@ from twitter import Twitter
 import time
 from model import *
 from sqlalchemy import func
+from ConfigParser import RawConfigParser
+import optparse
 
 ## setup the model
 setup_all()
 
 class TweetBot:
-    def __init__(self):
-        self.tbox=Twitter('stormwarn','st0rmp22wd')
-        
+    def __init__(self, tUser, tPassword):
+        self.tbox = Twitter(tUser, tPassword)
+
     def recordMessage(self, message):
         ### Need to parse the really lame timestamp twitter uses in 'created_at'
         dm=DirectMessages(messageID=message['id'])
@@ -17,7 +19,7 @@ class TweetBot:
         action = message['text'].split()[0].lower()
         state = message['text'].split()[1].upper()
         sender = message['sender_screen_name']
-        
+
         follower=Follower.get_by(userid=sender)
         if not follower:
             follower=Follower(userid=sender)
@@ -47,9 +49,9 @@ class TweetBot:
             self.tbox.direct_messages.new(user=sender, text='FOR SHAME!  You are no longer following storms in %s. Enable updates with   follow %s' % (state,state))
         else:
             self.tbox.direct_messages.new(user=sender, text='I am sorry %s , I can not do that.  Please try follow|silence|stop XX' % sender)
-        
+
         session.commit()
-            
+
 
     def getMessages(self):
         lastMessageID=DirectMessages.query().max(DirectMessages.messageID)
@@ -71,14 +73,39 @@ class TweetBot:
         self.makeFriends()
         self.getMessages()
 
+def getConfig(path): # move into common module with stormtweet.getConfig
+    rc = RawConfigParser()
+    if path not in rc.read(path):
+        print("Invalid Configuration File")
+        sys.exit(1)
+    return rc
 
+def getOptions():
+    op = optparse.OptionParser()
+    op.add_option("-c", "--config", dest="config",
+                  help="configuration file")
+    op.add_option("-i", "--initialize", dest="initialize",
+                  help="Initialize database, don't actually post entries")
+    op.add_option("-v", "--verbose", dest="verbose",
+                  help="Display extra information")
+    (options, args) = op.parse_args()
 
-if __name__=='__main__':
-    spam=TweetBot()
+    if options.config is None:
+        print("Configuration file required")
+        sys.exit(1)
+
+    return (options, args)
+
+def main():
+    options, args = getOptions()
+    config = getConfig(options.config)
+    spam=TweetBot(config.get("tweetbox", "user"),
+                  config.get("tweetbox", "password"))
 
     while 1:
         spam.doit()
         print 'sleeping ....'
         time.sleep(1800)
 
-            
+if __name__=='__main__':
+    main()

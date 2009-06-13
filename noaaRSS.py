@@ -52,8 +52,6 @@ class ThunderStorm(object):
                     self.displayEntry(e)
                     storm=self.recordEntry(e)
                     self.alertOnStorm(storm)
-##                    n = NOAA2Message()
-##                    n.convert(self.shelf["thunderstorm"][newid])
                     self.shelf["thunderstorm"][newid]
 
         # Clean up the existing entries
