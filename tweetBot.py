@@ -5,7 +5,27 @@ from sqlalchemy import func
 from ConfigParser import RawConfigParser
 import optparse
 
-## setup the model
+SORRY_MSG = """
+I am sorry %s , I can not do that.  Please try follow|silence|stop XX
+"""
+FOLLOW_SUCCESS_MSG = """
+Congrats! You are now following storms in %s. Silence updates with: silence %s
+"""
+SILENCE_SUCCESS_MSG = """
+SHHHHHH.  You have silenced updates for storms in %s. Enable
+ updates with: follow %s
+"""
+STOP_SUCCESS_MSG = """
+FOR SHAME!  You are no longer following storms in %s. Enable updates with:
+ follow %s
+"""
+UNKNOWN_MSG = """
+I am sorry %s , I can not do that.  Please try follow|silence|stop XX
+"""
+FOLLOWING_MSG = """
+Thanks for following StormWarn! To get storm warnings for a state with postal abbreviation XX send me:\nfollow XX to get updates
+"""
+# setup the model
 setup_all()
 
 class TweetBot:
@@ -13,49 +33,58 @@ class TweetBot:
         self.tbox = Twitter(tUser, tPassword)
 
     def recordMessage(self, message):
-        ### Need to parse the really lame timestamp twitter uses in 'created_at'
-        dm=DirectMessages(messageID=message['id'])
-        ## Expect the message to be  'follow XX'  where XX is a state abbreveation
+        # Need to parse the really lame timestamp twitter uses in 'created_at'
+        dm = DirectMessages(messageID = message['id'])
+        # Expect the message to be  'follow XX'  where XX is a state
+        # abbreveiation
         action = message['text'].split()[0].lower()
         state = message['text'].split()[1].upper()
         sender = message['sender_screen_name']
 
-        follower=Follower.get_by(userid=sender)
+        follower=Follower.get_by(userid = sender)
         if not follower:
-            follower=Follower(userid=sender)
+            follower=Follower(userid = sender)
             session.commit()
 
         ustate = UnitedStates.get_by(value=state)
         if not ustate:
-            self.tbox.direct_messages.new(user=sender, text='I am sorry %s , I can not do that.  Please try follow|silence|stop XX' % sender)
+            self.tbox.direct_messages.new(user = sender
+                                          text=SORRY_MSG % sender)
 
         if action == 'follow':
-            fstate=FollowerStates.get_by(value='Active')
-            follower.fState=fstate
-            follower.uState=ustate
+            fstate = FollowerStates.get_by(value='Active')
+            follower.fState = fstate
+            follower.uState = ustate
             follower.update()
-            self.tbox.direct_messages.new(user=sender, text='Congrats! You are now following storms in %s. Silence updates with   silence %s' % (state,state))
+            self.tbox.direct_messages.new(user = sender,
+                                          text = FOLLOW_SUCCESS_MSG %
+                                          (state,state))
         elif action == 'silence':
-            fstate=FollowerStates.get_by(value='Slienced')
-            follower.fState=fstate
-            follower.uState=ustate
+            fstate = FollowerStates.get_by(value='Slienced')
+            follower.fState = fstate
+            follower.uState = ustate
             follower.update()
-            self.tbox.direct_messages.new(user=sender, text='SHHHHHH.  You have silenced updates for storms in %s. Enable updates with   follow %s' % (state,state))
+            self.tbox.direct_messages.new(user = sender,
+                                          text = SILENCE_SUCCESS_MSG %
+                                          (state,state))
         elif action == 'stop':
-            fstate=FollowerStates.get_by(value='Inactive')
-            follower.fState=fstate
-            follower.uState=ustate
+            fstate = FollowerStates.get_by(value='Inactive')
+            follower.fState = fstate
+            follower.uState = ustate
             follower.update()
-            self.tbox.direct_messages.new(user=sender, text='FOR SHAME!  You are no longer following storms in %s. Enable updates with   follow %s' % (state,state))
+            self.tbox.direct_messages.new(user = sender,
+                                          text = STOP_SUCCESS_MSG %
+                                          (state,state))
         else:
-            self.tbox.direct_messages.new(user=sender, text='I am sorry %s , I can not do that.  Please try follow|silence|stop XX' % sender)
+            self.tbox.direct_messages.new(user = sender,
+                                          text = UNKNOWN_MSG % sender)
 
         session.commit()
 
 
     def getMessages(self):
-        lastMessageID=DirectMessages.query().max(DirectMessages.messageID)
-        messages=self.tbox.direct_messages(since_id=lastMessageID)
+        lastMessageID = DirectMessages.query().max(DirectMessages.messageID)
+        messages = self.tbox.direct_messages(since_id = lastMessageID)
         for aMessage in messages:
             self.recordMessage(aMessage)
 
@@ -66,9 +95,11 @@ class TweetBot:
         newFriends=followers - currentFriends
         for aFriend in newFriends:
             self.tbox.friendships.create(id=aFriend)
-            screen_name=self.tbox.users.show(id=aFriend)['screen_name']
-            self.tbox.direct_messages.new(user=screen_name, text='''Thanks for following StormWarn! To get storm warnings for a state with postal abbreviation XX send me:\nfollow XX to get updates''')
+            screen_name=self.tbox.users.show(id = aFriend)['screen_name']
+            self.tbox.direct_messages.new(user = screen_name,
+                                          text = FOLLOWING_MSG)
         session.commit()
+
     def doit(self):
         self.makeFriends()
         self.getMessages()

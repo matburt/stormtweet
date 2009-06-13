@@ -1,7 +1,7 @@
 from elixir import *
 import mx.DateTime
 
-## Set the data base backend (maybe pgsql later?)
+# Set the data base backend
 metadata.bind = "postgres://stormtweet:270rm@localhost/stormtweet"
 ## Debug SQL for now
 metadata.bind.echo = True
@@ -71,7 +71,7 @@ def createDataBase():
     TweetStates(value='New')
     TweetStates(value='Successful')
     TweetStates(value='Error')
-    
+
     FollowerStates(value='Active')
     FollowerStates(value='Silenced')
     FollowerStates(value='Inactive')
@@ -125,6 +125,6 @@ def createDataBase():
     UnitedStates(value='WA', name='Washington')
     UnitedStates(value='WV', name='West Virginia')
     UnitedStates(value='WI', name='Wisconsin')
-    UnitedStates(value='WY', name='Wyoming')    
-    
+    UnitedStates(value='WY', name='Wyoming')
+
     session.commit()
