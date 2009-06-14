@@ -49,7 +49,7 @@ class TweetBot:
 
         ustate = UnitedStates.get_by(value=state)
         if not ustate:
-            self.tbox.direct_messages.new(user = sender
+            self.tbox.direct_messages.new(user = sender,
                                           text=SORRY_MSG % sender)
 
         if action == 'follow':
