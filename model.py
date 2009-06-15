@@ -2,9 +2,9 @@ from elixir import *
 import mx.DateTime
 
 # Set the data base backend
-metadata.bind = "postgres://stormtweet:270rm@localhost/stormtweet"
+## metadata.bind = "postgres://stormtweet:270rm@localhost/stormtweet"
 ## Debug SQL for now
-metadata.bind.echo = True
+## metadata.bind.echo = True
 
 
 class StormType(Entity):
@@ -52,6 +52,9 @@ class DirectMessages(Entity):
     messageID = Field(String(50))
     messageTime = Field(DateTime, default = mx.DateTime.now)
 
+
+def setupModel(bindString):
+    metadata.bind=bindString
 
 def createDataBase():
     setup_all()
@@ -129,3 +132,7 @@ def createDataBase():
     UnitedStates(value='WY', name='Wyoming')
 
     session.commit()
+
+
+
+

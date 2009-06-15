@@ -6,28 +6,30 @@ from ConfigParser import RawConfigParser
 import optparse
 
 SORRY_MSG = """
-I am sorry %s , I can not do that.  Please try follow|silence|stop XX
+I am sorry %s, I can not do that.
+Please try follow|silence|stop XX
 """
 FOLLOW_SUCCESS_MSG = """
-Congrats! You are now following storms in %s. Silence updates with: silence %s
+Congrats! You are now following storms in %s.
+Silence updates with: silence %s
 """
 SILENCE_SUCCESS_MSG = """
-SHHHHHH.  You have silenced updates for storms in %s. Enable
- updates with: follow %s
+SHHHHHH.  You have silenced updates for storms in %s.
+Enable updates with: follow %s
 """
 STOP_SUCCESS_MSG = """
-FOR SHAME!  You are no longer following storms in %s. Enable updates with:
- follow %s
+FOR SHAME!  You are no longer following storms in %s.
+Enable updates with: follow %s
 """
 UNKNOWN_MSG = """
-I am sorry %s , I can not do that.  Please try follow|silence|stop XX
+I am sorry %s , I can not do that.
+Please try follow|silence|stop XX
 """
 FOLLOWING_MSG = """
-Thanks for following StormWarn! To get storm warnings for a state with postal
- abbreviation XX send me:\nfollow XX to get updates
+Thanks for following StormWarn!
+To get storm warnings for a state with postal abbreviation XX
+send me: follow XX to get updates
 """
-# setup the model
-setup_all()
 
 class TweetBot:
     def __init__(self, tUser, tPassword):
@@ -131,6 +133,7 @@ def getOptions():
 def main():
     options, args = getOptions()
     config = getConfig(options.config)
+    setupModel(config.get("model", "bind"))
     spam=TweetBot(config.get("tweetbox", "user"),
                   config.get("tweetbox", "password"))
 

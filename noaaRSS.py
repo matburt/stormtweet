@@ -80,7 +80,7 @@ class ThunderStorm(object):
         newStorm.update_or_save()
         return newStorm
 
-    def alertOnStorm(self,storm):
+    def createAlert(self,storm):
         # this whole function may need to run as a separate thread
         # instead of inline with the rss parsing
 
@@ -89,10 +89,20 @@ class ThunderStorm(object):
         storm.sState=stormState
         storm.update_or_save()
         #find all active users following the uState affected by the storm
-
-        # for each active user
-        # send a direct message to each user
-        #record the tweet sent to each user
-
+        tState=TweetState.get_by(value='New')
+        fState=FollowerStates.get_by(value='Active')
+        peeps=Follower.query.filter_by(fState=fState)
+        peeps=peeps.filter_by(uState=storm.uState)
+        #record a tweet for every affected follower
+        for aPerson in peeps.all():
+            newTweet=Tweet(follower=aPerson,
+                           storm=storm,tState=tState)
+            newTweet.save()
+        
+        session.commit()
+                           
         #after alerting all users, change the stormstate to dispatched so we
         #know we told everyone
+        stormState=StormStates.get_by(value = 'Dispatched')
+        storm.sState=stormState
+        storm.update_or_save()

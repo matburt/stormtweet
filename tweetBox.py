@@ -1,16 +1,16 @@
 from twitter import Twitter
+from model import *
+xs
 
-##tbox=Twitter('stormwarn','st0rmp22wd')
+class TweetBox:
+    def __init__(self, user, password):
+        self.tbox=Twitter(user, password)
 
-##tbox.statuses.update(status='testing python call')
+    def stormMessage(message, receipients):
+        tbox=Twitter('stormwarn','st0rmp22wd')
+        for aUser in receipients:
+            tbox.direct_messages.new(user=aUser,text=message)
 
-def stormMessage(message, receipients):
-    tbox=Twitter('stormwarn','st0rmp22wd')
-##    tbox.direct_messages.new(user='timothy_edwards',text=message)
-    for aUser in receipients:
-        tbox.direct_messages.new(user=aUser,text=message)
-
-
-def update(message):
-    tbox=Twitter('stormwarn','st0rmp22wd')
-    tbox.statuses.update(status='message')
+    def update(message):
+        tbox=Twitter('stormwarn','st0rmp22wd')
+        tbox.statuses.update(status='message')
