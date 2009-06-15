@@ -25,6 +25,7 @@ class FollowerStates(Entity):
 
 class Storm(Entity):
     stormType = ManyToOne('StormType') ## Hurricane, Thunderstorm, Tornado, Blizzard, etc
+    stormID = Field(String(256))
     effective = Field(DateTime, synonym='start')
     expires = Field(DateTime, synonym='end')
     sevLevel = Field(String(20))  ## NOAA severity level
@@ -48,7 +49,7 @@ class Tweets(Entity):
 
 
 class DirectMessages(Entity):
-    messageID = Field(Integer)
+    messageID = Field(String(50))
     messageTime = Field(DateTime, default = mx.DateTime.now)
 
 
