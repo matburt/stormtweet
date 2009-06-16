@@ -33,6 +33,9 @@ def main():
     if options.initialize:
         print "Initializing Database"
         model.createDataBase()
+        # Make codepath just create at the moment
+        # without attempting to fetch the feeds
+        sys.exit(1)
 
     ts = noaaRSS.ThunderStorm(config.get("stormtweet", "noaafeed"),
                               config.get("stormtweet", "shelfFile"))
