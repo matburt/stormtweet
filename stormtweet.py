@@ -1,6 +1,7 @@
 import noaaRSS
 import optparse
 import sys
+import model
 from ConfigParser import RawConfigParser
 
 def getConfig(path):
@@ -15,9 +16,11 @@ def main():
     op.add_option("-c", "--config", dest="config",
                   help="configuration file")
     op.add_option("-i", "--initialize", dest="initialize",
-                  help="Initialize database, don't actually post entries")
+                  help="Initialize database, don't actually post entries",
+                  action="store_true", default=False)
     op.add_option("-v", "--verbose", dest="verbose",
-                  help="Display extra information")
+                  help="Display extra information",
+                  action="store_true", default=False)
     (options, args) = op.parse_args()
 
     if options.config is None:
@@ -25,6 +28,12 @@ def main():
         sys.exit(1)
 
     config = getConfig(options.config)
+
+    model.setupModel(config.get("model", "bind"))
+    if options.initialize:
+        print "Initializing Database"
+        model.createDataBase()
+
     ts = noaaRSS.ThunderStorm(config.get("stormtweet", "noaafeed"),
                               config.get("stormtweet", "shelfFile"))
 
