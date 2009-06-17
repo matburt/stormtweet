@@ -53,7 +53,7 @@ class ThunderStorm(object):
                         e["summary"]
                     self.displayEntry(e)
                     storm=self.recordEntry(e)
-                    ##self.alertOnStorm(storm)
+                    self.createAlert(storm)
                     self.shelf["thunderstorm"][newid]
 
         # Clean up the existing entries
@@ -67,10 +67,12 @@ class ThunderStorm(object):
         pass
 
     def recordEntry(self, e):
+        newid = e['id'].split('=', 1)[1]
+        state = newid[0:2]
         stormType=StormType.get_by(value ='Thunderstorm')
         sState=StormStates.get_by(value = 'New')
-        uState=UnitedStates.get_by(abbreviation = e['id'][0:2])
-        newStorm=Storm(stormID = e['id'],
+        uState=UnitedStates.get_by(abbreviation = state)
+        newStorm=Storm(stormID = newid,
                        stormType = stormType,
                        effective = e['cap_effective'],
                        expires = e['cap_expires'],
@@ -92,13 +94,14 @@ class ThunderStorm(object):
         storm.sState=stormState
         storm.save_or_update()
         #find all active users following the uState affected by the storm
-        tState=TweetState.get_by(value='New')
+        tState=TweetStates.get_by(value='New')
         fState=FollowerStates.get_by(value='Active')
         peeps=Follower.query.filter_by(fState=fState)
         peeps=peeps.filter_by(uState=storm.uState)
         #record a tweet for every affected follower
         for aPerson in peeps.all():
-            newTweet=Tweet(follower=aPerson,
+            print aPerson.name
+            newTweet=Tweets(follower=aPerson,
                            storm=storm,tState=tState)
             newTweet.save()
         
