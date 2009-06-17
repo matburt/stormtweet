@@ -1,16 +1,18 @@
 import feedparser
 import shelve
 import re
+from model import *
 
 class ThunderStorm(object):
     '''ThunderStorm class used to parse and store relevant information
     for a Severe ThunderStorm Alert'''
-    def __init__(self, feedUrl, shelfPath):
+    def __init__(self, feedUrl, shelfPath, modelBind):
         #self.order=['location','effective','direction','expires','rain',
         #            'winds','lightining','hail']
         self.shelf = shelve.open(shelfPath, writeback=True)
         if "thunderstorm" not in self.shelf:
             self.shelf["thunderstorm"] = {}
+        setupModel(modelBind)
         self.parse(feedparser.parse(feedUrl))
 
     def displayEntry(self, entry):
@@ -51,7 +53,7 @@ class ThunderStorm(object):
                         e["summary"]
                     self.displayEntry(e)
                     storm=self.recordEntry(e)
-                    self.alertOnStorm(storm)
+                    ##self.alertOnStorm(storm)
                     self.shelf["thunderstorm"][newid]
 
         # Clean up the existing entries
@@ -66,7 +68,7 @@ class ThunderStorm(object):
 
     def recordEntry(self, e):
         stormType=StormType.get_by(value ='Thunderstorm')
-        stormState=StormStates.get_by(value = 'New')
+        sState=StormStates.get_by(value = 'New')
         uState=UnitedStates.get_by(abbreviation = e['id'][0:2])
         newStorm=Storm(stormID = e['id'],
                        stormType = stormType,
@@ -77,7 +79,8 @@ class ThunderStorm(object):
                        summary = e['summary'],
                        uState = uState,
                        sState = sState)
-        newStorm.update_or_save()
+        newStorm.save_or_update()
+        session.commit()
         return newStorm
 
     def createAlert(self,storm):
@@ -87,7 +90,7 @@ class ThunderStorm(object):
         # change the state to proccessing until we finish sending the alerts
         stormState=StormStates.get_by(value = 'Processing')
         storm.sState=stormState
-        storm.update_or_save()
+        storm.save_or_update()
         #find all active users following the uState affected by the storm
         tState=TweetState.get_by(value='New')
         fState=FollowerStates.get_by(value='Active')
@@ -105,4 +108,5 @@ class ThunderStorm(object):
         #know we told everyone
         stormState=StormStates.get_by(value = 'Dispatched')
         storm.sState=stormState
-        storm.update_or_save()
+        storm.save_or_update()
+        session.commit()

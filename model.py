@@ -55,6 +55,7 @@ class DirectMessages(Entity):
 
 def setupModel(bindString):
     metadata.bind=bindString
+    setup_all()
 
 def createDataBase():
     setup_all()

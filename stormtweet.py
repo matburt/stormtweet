@@ -38,7 +38,8 @@ def main():
         sys.exit(1)
 
     ts = noaaRSS.ThunderStorm(config.get("stormtweet", "noaafeed"),
-                              config.get("stormtweet", "shelfFile"))
+                              config.get("stormtweet", "shelfFile"),
+                              config.get("model", "bind"))
 
 if __name__ == '__main__':
     main()
