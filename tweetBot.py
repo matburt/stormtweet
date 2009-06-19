@@ -4,6 +4,7 @@ from model import *
 from sqlalchemy import func
 from ConfigParser import RawConfigParser
 import optparse
+import sys
 
 SORRY_MSG = """
 I am sorry %s, I can not do that.
@@ -86,7 +87,12 @@ class TweetBot:
 
 
     def getMessages(self):
-        lastMessageID = DirectMessages.query().max(DirectMessages.messageID)
+        prevMsgs = DirectMessages.query().order_by(
+            DirectMessages.messageTime).limit(1).all()
+        if len(prevMsgs) < 1:
+            lastMessageID = None
+        else:
+            lastMessageID = prevMsgs[0].messageID
         messages = self.tbox.direct_messages(since_id = lastMessageID)
         for aMessage in messages:
             self.recordMessage(aMessage)

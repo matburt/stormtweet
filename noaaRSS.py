@@ -18,10 +18,10 @@ class ThunderStorm(object):
     def displayEntry(self, entry):
         id = entry['id'].split('=', 1)[1]
         state = id[0:2]
-        sevLevel = entry['cap_severity']
-        effective = entry['cap_effective']
-        expires = entry['cap_expires']
-        urgency = entry['cap_urgency']
+        sevLevel = entry['severity']
+        effective = entry['effective']
+        expires = entry['expires']
+        urgency = entry['urgency']
         summary = entry['summary']
 
         print "\nID:            %s" % id
@@ -74,10 +74,10 @@ class ThunderStorm(object):
         uState=UnitedStates.get_by(abbreviation = state)
         newStorm=Storm(stormID = newid,
                        stormType = stormType,
-                       effective = e['cap_effective'],
-                       expires = e['cap_expires'],
-                       sevLevel = e['cap_severity'],
-                       urgency = e['cap_urgency'],
+                       effective = e['effective'],
+                       expires = e['expires'],
+                       sevLevel = e['severity'],
+                       urgency = e['urgency'],
                        summary = e['summary'],
                        uState = uState,
                        sState = sState)
