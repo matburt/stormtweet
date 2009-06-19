@@ -1,6 +1,7 @@
 import feedparser
 import shelve
 import re
+import time
 from model import *
 
 class ThunderStorm(object):
@@ -13,7 +14,14 @@ class ThunderStorm(object):
         if "thunderstorm" not in self.shelf:
             self.shelf["thunderstorm"] = {}
         setupModel(modelBind)
-        self.parse(feedparser.parse(feedUrl))
+        self.feedUrl = feedUrl
+        #self.parse(feedparser.parse(feedUrl))
+
+    def start(self):
+        while True:
+            print("Parsing feeds and handling notifies...")
+            self.parse(feedparser.parse(self.feedUrl))
+            time.sleep(600)
 
     def displayEntry(self, entry):
         id = entry['id'].split('=', 1)[1]
@@ -86,10 +94,6 @@ class ThunderStorm(object):
         return newStorm
 
     def createAlert(self,storm):
-        # this whole function may need to run as a separate thread
-        # instead of inline with the rss parsing
-
-        # change the state to proccessing until we finish sending the alerts
         stormState=StormStates.get_by(value = 'Processing')
         storm.sState=stormState
         storm.save_or_update()

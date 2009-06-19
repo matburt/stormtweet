@@ -109,9 +109,12 @@ class TweetBot:
                                           text = FOLLOWING_MSG)
         session.commit()
 
-    def doit(self):
-        self.makeFriends()
-        self.getMessages()
+    def run(self):
+        while True:
+            print("Making friends and processing messages.")
+            self.makeFriends()
+            self.getMessages()
+            time.sleep(900)
 
 def getConfig(path): # move into common module with stormtweet.getConfig
     rc = RawConfigParser()
@@ -140,13 +143,9 @@ def main():
     options, args = getOptions()
     config = getConfig(options.config)
     setupModel(config.get("model", "bind"))
-    spam=TweetBot(config.get("tweetbox", "user"),
+    tbInst = TweetBot(config.get("tweetbox", "user"),
                   config.get("tweetbox", "password"))
-
-    while 1:
-        spam.doit()
-        print 'sleeping ....'
-        time.sleep(1800)
+    tbInst.run()
 
 if __name__=='__main__':
     main()

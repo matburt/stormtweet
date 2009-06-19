@@ -2,6 +2,8 @@ import noaaRSS
 import optparse
 import sys
 import model
+import tweetBot
+from multiprocessing import Process
 from ConfigParser import RawConfigParser
 
 def getConfig(path):
@@ -40,6 +42,17 @@ def main():
     ts = noaaRSS.ThunderStorm(config.get("stormtweet", "noaafeed"),
                               config.get("stormtweet", "shelfFile"),
                               config.get("model", "bind"))
+    tb = tweetBot.TweetBot(config.get("tweetbox", "user"),
+                           config.get("tweetbox", "password"))
+
+    tsProc = Process(target = ts.start)
+    tbProc = Process(target = tb.run)
+
+    tsProc.start()
+    tbProc.start()
+
+    tsProc.join()
+    tbProc.join()
 
 if __name__ == '__main__':
     main()
