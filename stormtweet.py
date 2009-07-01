@@ -3,6 +3,7 @@ import optparse
 import sys
 import model
 import tweetBot
+import tweetBox
 from multiprocessing import Process
 from ConfigParser import RawConfigParser
 
@@ -44,15 +45,21 @@ def main():
                               config.get("model", "bind"))
     tb = tweetBot.TweetBot(config.get("tweetbox", "user"),
                            config.get("tweetbox", "password"))
+    tbox = tweetBox.TweetBox(config.get("tweetbox", "user"),
+                             config.get("tweetbox", "password"),
+                             config.get("model", "bind"))
 
     tsProc = Process(target = ts.start)
     tbProc = Process(target = tb.run)
+    tboxProc = Process(target = tbox.run)
 
     tsProc.start()
     tbProc.start()
+    tboxProc.start()
 
     tsProc.join()
     tbProc.join()
+    tboxProc.join()
 
 if __name__ == '__main__':
     main()

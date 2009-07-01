@@ -3,11 +3,11 @@ import optparse
 import sys
 from ConfigParser import RawConfigParser
 from model import *
+import time
 
 class TweetBox:
     def __init__(self, user, password, modelBind):
         self.tbox=Twitter(user, password)
-        setupModel(modelBind)
 
     def stormMessage(self, message, receipient):
         self.tbox.direct_messages.new(user=receipient,text=message)
@@ -33,6 +33,12 @@ class TweetBox:
                 t.update()
         session.commit()
 
+    def run(self):
+        while True:
+            print("Sending alerts")
+            self.getAlerts()
+            time.sleep(5)
+
 def getConfig(path):
     rc = RawConfigParser()
     if path not in rc.read(path):
@@ -57,11 +63,11 @@ def main():
         sys.exit(1)
 
     config = getConfig(options.config)
-
+    setupModel(config.get("model", "bind"))
     tbox = TweetBox(config.get("tweetbox", "user"),
                     config.get("tweetbox", "password"),
                     config.get("model", "bind"))
-    tbox.getAlerts()
+    tbox.run()
 
 if __name__ == '__main__':
     main()

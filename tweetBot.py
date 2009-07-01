@@ -54,6 +54,7 @@ class TweetBot:
         if not ustate:
             self.tbox.direct_messages.new(user = sender,
                                           text=SORRY_MSG % sender)
+            return
 
         if action == 'follow':
             fstate = FollowerStates.get_by(value='Active')
@@ -103,7 +104,11 @@ class TweetBot:
         followers=set(self.tbox.followers.ids.stormwarn())
         newFriends=followers - currentFriends
         for aFriend in newFriends:
-            self.tbox.friendships.create(id=aFriend)
+            try:
+                self.tbox.friendships.create(id=aFriend)
+            except Exception:
+                print "Failed to follow %s" % aFriend
+                continue
             screen_name=self.tbox.users.show(id = aFriend)['screen_name']
             self.tbox.direct_messages.new(user = screen_name,
                                           text = FOLLOWING_MSG)

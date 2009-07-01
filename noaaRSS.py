@@ -50,7 +50,8 @@ class ThunderStorm(object):
 
         for e in nfeed['entries']:
         ## Only report the SevereThunderStormWarnings
-            if e['id'].find('SevereThunderstormWarning') > 0:
+            if e['id'].find('SevereThunderstormWarning') > 0 \
+                    or (e.has_key('summary') and e['summary'].find('THUNDERSTORM') > 0):
                 feedEntries.append(e)
                 newid = e['id'].split('=', 1)[1]
                 state = newid[0:2]
@@ -59,7 +60,7 @@ class ThunderStorm(object):
                     self.newEntries.append(newid)
                     self.shelf["thunderstorm"][newid] = state + ":" + \
                         e["summary"]
-                    self.displayEntry(e)
+                    #self.displayEntry(e)
                     storm=self.recordEntry(e)
                     self.createAlert(storm)
                     self.shelf["thunderstorm"][newid]
@@ -104,7 +105,7 @@ class ThunderStorm(object):
         peeps=peeps.filter_by(uState=storm.uState)
         #record a tweet for every affected follower
         for aPerson in peeps.all():
-            print aPerson.name
+            print("Notifying: %s" % aPerson.name)
             newTweet=Tweets(follower=aPerson,
                            storm=storm,tState=tState)
             newTweet.save()
