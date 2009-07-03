@@ -2,6 +2,7 @@ from twitter import Twitter
 import time
 from model import *
 from sqlalchemy import func
+from sqlalchemy.sql.expression import *
 from ConfigParser import RawConfigParser
 import optparse
 import sys
@@ -89,11 +90,12 @@ class TweetBot:
 
     def getMessages(self):
         prevMsgs = DirectMessages.query().order_by(
-            DirectMessages.messageTime).limit(1).all()
+            desc(DirectMessages.messageTime)).limit(1).all()
         if len(prevMsgs) < 1:
             lastMessageID = None
         else:
             lastMessageID = prevMsgs[0].messageID
+        print "Getting Direct Messages since %s " %(lastMessageID)
         messages = self.tbox.direct_messages(since_id = lastMessageID)
         for aMessage in messages:
             self.recordMessage(aMessage)
